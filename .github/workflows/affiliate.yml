@@ -1,0 +1,26 @@
+
+name: Affiliate Automation
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  test-google-auth:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Authenticate Google Cloud
+        uses: google-github-actions/auth@v3
+        with:
+          workload_identity_provider: 'projects/786049254562/locations/global/workloadIdentityPools/github-affiliate-pool/providers/github-provider'
+          service_account: 'github-affiliate-bot@n8n-facebook-affiliate.iam.gserviceaccount.com'
+
+      - name: Confirm authentication
+        run: echo "Google Cloud authentication successful"
