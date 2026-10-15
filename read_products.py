@@ -1,48 +1,38 @@
 
-import os
-import google.auth
-from google.auth.transport.requests import AuthorizedSession
+name: Affiliate Automation
 
-SPREADSHEET_ID = "1I5AygTu_f3l6M_IUkwjwp4xlCKI5KA-GEp1u_SNh06E"
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 2 * * *'
 
-credentials, _ = google.auth.default(
-    scopes=["https://www.googleapis.com/auth/spreadsheets"]
-)
+permissions:
+  contents: read
+  id-token: write
 
-session = AuthorizedSession(credentials)
+jobs:
+  read-products:
+    runs-on: ubuntu-latest
 
-url = (
-    "https://sheets.googleapis.com/v4/spreadsheets/"
-    f"{SPREADSHEET_ID}/values/Products!A1:Z1000"
-)
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-response = session.get(url, timeout=30)
-response.raise_for_status()
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
 
-values = response.json().get("values", [])
+      - name: Install dependencies
+        run: pip install google-auth requests
 
-if not values:
-    print("Sheet Products chưa có dữ liệu.")
-    raise SystemExit(0)
+      - name: Authenticate Google Cloud
+        uses: google-github-actions/auth@v3
+        with:
+          workload_identity_provider: 'projects/786049254562/locations/global/workloadIdentityPools/github-affiliate-pool/providers/github-provider'
+          service_account: 'github-affiliate-bot@n8n-facebook-affiliate.iam.gserviceaccount.com'
+          create_credentials_file: true
+          export_environment_variables: true
 
-headers = values[0]
-products = []
-
-for row in values[1:]:
-    product = dict(zip(headers, row))
-
-    if (
-        product.get("status", "").strip() == "READY"
-        and product.get("approved", "").strip() == "YES"
-    ):
-        products.append(product)
-
-print(f"Tìm thấy {len(products)} sản phẩm hợp lệ.")
-
-for product in products:
-    print(
-        "Sản phẩm:",
-        product.get("product_id"),
-        "-",
-        product.get("product_name")
-    )
+      - name: Read Google Sheets Products
+        run: python read_products.py
