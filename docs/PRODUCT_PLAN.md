@@ -44,6 +44,23 @@ Mỗi bản ghi cần lưu nguồn và ngày lấy dữ liệu. Có thể nhập
 
 Thiếu dữ liệu thì hiển thị “chưa biết”, không tự điền 0 hoặc bịa hoa hồng. Điểm cạnh tranh và chính sách phải có ghi chú/phương pháp quan sát để người dùng kiểm tra lại.
 
+
+
+### Bộ chấm điểm thử nghiệm đã có trong nhánh này
+
+File `niche_scorer.py` là bộ CLI đầu tiên. Nhập điểm thủ công theo thang 0–5 cho sáu yếu tố trên; ở yếu tố cạnh tranh, điểm cao nghĩa là ít cạnh tranh hơn, còn ở an toàn chính sách, điểm cao nghĩa là rủi ro thấp hơn. Không có điểm nào được tự suy ra từ lượt bán/hoa hồng.
+
+CLI chỉ xuất tổng điểm khi đủ cả sáu điểm, có ít nhất một URL bằng chứng và có ngày kiểm tra. Thiếu bất kỳ dữ liệu nào thì kết quả là `NEED_DATA`, không bị quy thành điểm 0.
+
+CSV đầu vào cần cột: `niche,demand,product_signal,commission,demo,competition,policy_safety,evidence_urls,checked_at`. Điểm điền từ dữ liệu quan sát được và đánh giá thủ công; giữ ghi chú/nguồn ngoài CSV nếu cần giải thích cách chấm.
+
+Chạy bằng Python 3:
+
+```bash
+python niche_scorer.py niche-candidates.csv --output niche-rankings.csv
+python -m unittest discover -s tests -v
+```
+
 ## Luồng MVP
 
 1. **Nhập ứng viên:** tên, URL sản phẩm, nền tảng affiliate, hoa hồng nếu có nguồn, giá quan sát, đánh giá/lượt bán nếu có, ngày kiểm tra, ghi chú và quyền sử dụng tư liệu.
