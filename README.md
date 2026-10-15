@@ -16,7 +16,7 @@ A first Python CLI now scores manually researched niches with a weighted, eviden
 Run it with Python 3:
 
 ```bash
-python niche_scorer.py niche-candidates.csv --output niche-rankings.csv
+python niche_scorer.py examples/niche-candidates-template.csv --output niche-rankings.csv
 python -m unittest discover -s tests -v
 ```
 
