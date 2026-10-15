@@ -10,8 +10,10 @@ from __future__ import annotations
 import argparse
 import csv
 import sys
+from datetime import date
 from decimal import Decimal, InvalidOperation
 from pathlib import Path
+from urllib.parse import urlsplit
 
 
 WEIGHTS = {
@@ -51,6 +53,17 @@ def score_row(row: dict[str, str], row_number: int = 2) -> dict[str, str]:
     missing = [name for name, value in scores.items() if value is None]
     evidence = (row.get("evidence_urls") or "").strip()
     checked_at = (row.get("checked_at") or "").strip()
+    if evidence and not any(
+        urlsplit(candidate.strip()).scheme in {"http", "https"}
+        and bool(urlsplit(candidate.strip()).netloc)
+        for candidate in evidence.split("|")
+    ):
+        raise InputError(f"Row {row_number}: evidence_urls must contain an http(s) URL.")
+    if checked_at:
+        try:
+            date.fromisoformat(checked_at)
+        except ValueError as exc:
+            raise InputError(f"Row {row_number}: checked_at must use YYYY-MM-DD.") from exc
 
     if missing or not evidence or not checked_at:
         reasons = []
