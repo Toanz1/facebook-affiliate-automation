@@ -39,6 +39,14 @@ class NicheScorerTests(unittest.TestCase):
         with self.assertRaises(InputError):
             score_row(self.row(demand="5.1"))
 
+    def test_invalid_evidence_url_is_rejected(self):
+        with self.assertRaises(InputError):
+            score_row(self.row(evidence_urls="not-a-url"))
+
+    def test_invalid_check_date_is_rejected(self):
+        with self.assertRaises(InputError):
+            score_row(self.row(checked_at="yesterday"))
+
     def test_blank_niche_is_rejected(self):
         with self.assertRaises(InputError):
             score_row(self.row(niche=" "))
